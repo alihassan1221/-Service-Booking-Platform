@@ -1,0 +1,47 @@
+# =========================
+# General Node.js / Backend
+# =========================
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.log
+
+# MacOS
+.DS_Store
+
+# npm cache
+.npm/
+
+# =========================
+# Backend / server folder
+# =========================
+server/node_modules/
+server/dist/
+server/build/
+
+# Optional: backup or temp files
+server/*.backup
+server/*.swp
+
+# =========================
+# Frontend / client folder (Vite React)
+# =========================
+client/node_modules/
+client/dist/
+client/.vite/
+
+# VSCode settings
+.vscode/
