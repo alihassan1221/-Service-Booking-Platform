@@ -13,10 +13,9 @@ export const getUsers = createAsyncThunk(
   'users/getAll',
   async (_, thunkAPI) => {
     try {
-      const token = thunkAPI.getState().auth.user.token;
-      return await userService.getUsers(token);
+      return await userService.getUsers();
     } catch (error) {
-      const message = error.response?.data?.message || error.message || error.toString();
+      const message = error.response?.data?.message || error.message || 'Failed to fetch users';
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -26,10 +25,26 @@ export const createManager = createAsyncThunk(
   'users/createManager',
   async (userData, thunkAPI) => {
     try {
-      const token = thunkAPI.getState().auth.user.token;
-      return await userService.createManager(userData, token);
+      return await userService.createManager(userData);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || error.toString();
+      const message = error.response?.data?.message || error.message || 'Failed to create manager';
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+// Update user async thunk
+export const updateUser = createAsyncThunk(
+  'users/update',
+  async ({ id, userData }, thunkAPI) => {
+    try {
+      return await userService.updateUser(id, userData);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -39,10 +54,9 @@ export const deleteUser = createAsyncThunk(
   'users/delete',
   async (userId, thunkAPI) => {
     try {
-      const token = thunkAPI.getState().auth.user.token;
-      return await userService.deleteUser(userId, token);
+      return await userService.deleteUser(userId);
     } catch (error) {
-      const message = error.response?.data?.message || error.message || error.toString();
+      const message = error.response?.data?.message || error.message || 'Failed to delete user';
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -63,6 +77,7 @@ export const userSlice = createSlice({
     builder
       .addCase(getUsers.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
       })
       .addCase(getUsers.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -73,9 +88,11 @@ export const userSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+        state.users = [];
       })
       .addCase(createManager.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
       })
       .addCase(createManager.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -89,6 +106,7 @@ export const userSlice = createSlice({
       })
       .addCase(deleteUser.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -98,6 +116,25 @@ export const userSlice = createSlice({
         );
       })
       .addCase(deleteUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        // Update the user in the state
+        const index = state.users.findIndex(
+          (user) => user._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;

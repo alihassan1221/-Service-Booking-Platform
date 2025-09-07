@@ -25,10 +25,10 @@ const sendTokenResponse = (user, statusCode, res) => {
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, isAdmin } = req.body;
 
     // Check if user wants to register as manager or admin
-    if (role && (role === 'manager' || role === 'admin')) {
+    if (!isAdmin && role && (role.toLowerCase() === 'manager' || role.toLowerCase() === 'admin')) {
       return res.status(400).json({
         success: false,
         message: 'Cannot register as manager or admin'

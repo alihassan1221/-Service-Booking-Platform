@@ -78,3 +78,47 @@ exports.deleteUser = async (req, res, next) => {
     res.status(400).json({ success: false, message: err.message });
   }
 };
+
+// @desc    Update user
+// @route   PUT /api/users/:id
+// @access  Private/Admin
+exports.updateUser = async (req, res, next) => {
+  try {
+    const { name, email, role } = req.body;
+    const userId = req.params.id;
+
+    // Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Check if email is already taken by another user
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already taken by another user'
+        });
+      }
+    }
+
+    // Update user fields
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+
+    const updatedUser = await user.save();
+
+    // Remove password from response
+    const userResponse = await User.findById(updatedUser._id).select('-password');
+
+    res.status(200).json({
+      success: true,
+      data: userResponse
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+};

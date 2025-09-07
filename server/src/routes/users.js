@@ -2,7 +2,8 @@ const express = require('express');
 const {
   getUsers,
   createManager,
-  deleteUser
+  deleteUser,
+  updateUser,
 } = require('../controllers/users');
 
 const router = express.Router();
@@ -19,6 +20,7 @@ router.route('/managers')
   .post(createManager);
 
 router.route('/:id')
-  .delete(deleteUser);
+  .delete(deleteUser)
+  .put(updateUser)
 
 module.exports = router;
