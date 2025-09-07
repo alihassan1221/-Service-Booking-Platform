@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
       case 'manager':
         return <Navigate to="/manager" replace />;
       case 'user':
-        return <Navigate to="/my-bookings" replace />;
+        return <Navigate to="/user" replace />;
       default:
         return <Navigate to="/login" replace />;
     }

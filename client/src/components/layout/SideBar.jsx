@@ -26,6 +26,7 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar, isSidebarCollapsed }) => {
   };
 
   const userMenuItems = [
+    { path: "/user", label: "Dashboard", icon: LayoutDashboard },
     { path: "/my-bookings", label: "My Bookings", icon: Home },
     { path: "/create-booking", label: "Create Booking", icon: Calendar },
   ];

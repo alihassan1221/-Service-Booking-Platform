@@ -55,6 +55,12 @@ function App() {
                 <AllBookings />
               </ProtectedRoute>
             } />
+
+            <Route path="user" element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <UserDashboard />
+              </ProtectedRoute>
+            } />
             
             {/* Admin Routes */}
             <Route path="admin" element={

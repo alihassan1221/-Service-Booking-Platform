@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { 
   Filter, 
   Search, 
@@ -19,6 +20,7 @@ import Input from '../common/Input';
 
 const BookingList = ({ isManagerView = false }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { bookings, isLoading, isError, message } = useSelector((state) => state.bookings);
   const { user } = useSelector((state) => state.auth);
   
@@ -35,6 +37,14 @@ const BookingList = ({ isManagerView = false }) => {
       dispatch(getUserBookings());
     }
   }, [dispatch, isManagerView, user?.role]);
+
+  const handleCreateBooking = () => {
+    navigate('/create-booking');
+  };
+
+  const handleCreateFirstBooking = () => {
+    navigate('/create-booking');
+  };
 
   // Filter bookings based on search and filters
   const filteredBookings = bookings.filter(booking => {
@@ -72,6 +82,18 @@ const BookingList = ({ isManagerView = false }) => {
     );
   }
 
+  if (isError) {
+    return (
+      <Card className="p-6 text-center">
+        <div className="text-red-600 dark:text-red-400 text-lg mb-2">Error Loading Bookings</div>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">{message}</p>
+        <Button onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header and Filters */}
@@ -88,7 +110,10 @@ const BookingList = ({ isManagerView = false }) => {
           
           <div className="flex items-center gap-3">
             {!isManagerView && (
-              <Button className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+              <Button 
+                onClick={handleCreateBooking}
+                className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Booking
               </Button>
@@ -174,7 +199,7 @@ const BookingList = ({ isManagerView = false }) => {
               : isManagerView ? 'No bookings have been made yet.' : 'You have no bookings yet.'}
           </p>
           {!isManagerView && (
-            <Button>
+            <Button onClick={handleCreateFirstBooking}>
               Create Your First Booking
             </Button>
           )}
