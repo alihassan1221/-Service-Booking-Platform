@@ -1,24 +1,4 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-
-// Generate JWT Token
-const sendTokenResponse = (user, statusCode, res) => {
-  // Create token
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
-
-  res.status(statusCode).json({
-    success: true,
-    token,
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }
-  });
-};
+const authService = require('../services/authService');
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -36,7 +16,7 @@ exports.register = async (req, res, next) => {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await authService.checkUserExists(email);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -45,14 +25,14 @@ exports.register = async (req, res, next) => {
     }
 
     // Create user
-    const user = await User.create({
+    const user = await authService.createUser({
       name,
       email,
       password,
       role: role || 'user'
     });
 
-    sendTokenResponse(user, 200, res);
+    authService.sendTokenResponse(user, 200, res);
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -71,20 +51,20 @@ exports.login = async (req, res, next) => {
     }
 
     // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    const user = await authService.findUserByEmailWithPassword(email);
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
     // Check if password matches
-    const isMatch = await user.matchPassword(password);
+    const isMatch = await authService.verifyPassword(user, password);
 
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    sendTokenResponse(user, 200, res);
+    authService.sendTokenResponse(user, 200, res);
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
@@ -95,7 +75,7 @@ exports.login = async (req, res, next) => {
 // @access  Private
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await authService.findUserById(req.user.id);
 
     res.status(200).json({
       success: true,

@@ -94,7 +94,7 @@ const Register = () => {
             placeholder="Enter your full name"
             value={name}
             onChange={onChange}
-            required
+            required = {true}
           />
           <Input
             label="Email address"
@@ -103,7 +103,7 @@ const Register = () => {
             placeholder="Enter your email"
             value={email}
             onChange={onChange}
-            required
+            required = {true}
           />
           <div className="relative">
             <Input
@@ -113,7 +113,7 @@ const Register = () => {
               placeholder="Enter your password"
               value={password}
               onChange={onChange}
-              required
+              required = {true}
             />
             <button
               type="button"
@@ -134,7 +134,7 @@ const Register = () => {
             placeholder="Confirm your password"
             value={confirmPassword}
             onChange={onChange}
-            required
+            required = {true}
           />
 
           <Button

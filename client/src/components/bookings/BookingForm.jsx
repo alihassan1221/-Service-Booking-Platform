@@ -65,7 +65,7 @@ const BookingForm = () => {
                 value={formData.vehicleType}
                 onChange={handleChange}
                 className="input-field"
-                required
+                required = {true}
               >
                 <option value="">Select Vehicle Type</option>
                 {vehicleTypes.map((type) => (
@@ -82,7 +82,7 @@ const BookingForm = () => {
               type="date"
               value={formData.preferredDate}
               onChange={handleChange}
-              required
+              required = {true}
             />
           </div>
 
@@ -93,7 +93,7 @@ const BookingForm = () => {
             placeholder="Enter service location"
             value={formData.location}
             onChange={handleChange}
-            required
+            required = {true}
           />
 
           <div>
@@ -105,7 +105,7 @@ const BookingForm = () => {
               value={formData.issueDescription}
               onChange={handleChange}
               className="input-field"
-              required
+              required = {true}
             />
           </div>
 

@@ -86,7 +86,7 @@ const Login = () => {
             placeholder="Enter your email"
             value={email}
             onChange={onChange}
-            required
+            required = {true}
           />
           <div className="relative">
             <Input
@@ -96,7 +96,7 @@ const Login = () => {
               placeholder="Enter your password"
               value={password}
               onChange={onChange}
-              required
+              required = {true}
             />
             <button
               type="button"

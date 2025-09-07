@@ -1,30 +1,35 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { 
-  Search, 
-  Filter, 
-  UserPlus, 
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Search,
+  Filter,
+  UserPlus,
   Shield,
   Eye,
   Edit,
   Trash2,
   Mail,
   Phone,
-  Calendar
-} from 'lucide-react';
-import { getUsers, deleteUser, createManager, updateUser } from '../../store/slices/userSlice';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import Modal from '../../components/common/Modal';
-import Input from '../../components/common/Input';
-import { toast } from 'react-toastify';
+  Calendar,
+} from "lucide-react";
+import {
+  getUsers,
+  deleteUser,
+  createManager,
+  updateUser,
+} from "../../store/slices/userSlice";
+import Card from "../../components/common/Card";
+import Button from "../../components/common/Button";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import Modal from "../../components/common/Modal";
+import Input from "../../components/common/Input";
+import { toast } from "react-toastify";
 
 const ManagerManagement = () => {
   const dispatch = useDispatch();
   const { users, isLoading } = useSelector((state) => state.users);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const [selectedManager, setSelectedManager] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showManagerModal, setShowManagerModal] = useState(false);
@@ -34,41 +39,56 @@ const ManagerManagement = () => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Filter only managers (exclude admins and regular users)
-  const managers = users.filter(user => user.role === 'manager');
+  const managers = users.filter((user) => user.role === "manager");
 
   // Add manager form state
   const [newManager, setNewManager] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   // Edit manager form state
   const [editManager, setEditManager] = useState({
-    name: '',
-    email: '',
-    role: 'manager'
+    name: "",
+    email: "",
+    role: "manager",
   });
+
+  const isUpdateDisabled =
+    !editManager.name.trim() ||
+    !editManager.email.trim() ||
+    !editManager.role.trim() ||
+    isUpdating;
+
+  const isCreateDisabled =
+    !newManager.name.trim() ||
+    !newManager.email.trim() ||
+    !newManager.password.trim() ||
+    !newManager.confirmPassword.trim() ||
+    isCreating;
 
   useEffect(() => {
     dispatch(getUsers());
   }, [dispatch]);
 
   // Filter and search managers
-  const filteredManagers = managers.filter(manager => {
-    return manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           manager.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredManagers = managers.filter((manager) => {
+    return (
+      manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      manager.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   });
 
   // Sort managers
   const sortedManagers = [...filteredManagers].sort((a, b) => {
     switch (sortBy) {
-      case 'newest':
+      case "newest":
         return new Date(b.createdAt) - new Date(a.createdAt);
-      case 'oldest':
+      case "oldest":
         return new Date(a.createdAt) - new Date(b.createdAt);
-      case 'name':
+      case "name":
         return a.name.localeCompare(b.name);
       default:
         return 0;
@@ -81,10 +101,10 @@ const ManagerManagement = () => {
         await dispatch(deleteUser(selectedManager._id)).unwrap();
         setShowDeleteModal(false);
         setSelectedManager(null);
-        toast.success('Manager deleted successfully');
+        toast.success("Manager deleted successfully");
       } catch (error) {
-        console.error('Failed to delete manager:', error);
-        toast.error(error.message || 'Failed to delete manager');
+        console.error("Failed to delete manager:", error);
+        toast.error(error.message || "Failed to delete manager");
       }
     }
   };
@@ -115,16 +135,17 @@ const ManagerManagement = () => {
         role: editManager.role,
       };
 
-      await dispatch(updateUser({ id: selectedManager._id, userData: managerData })).unwrap();
-      toast.success('Manager updated successfully');
+      await dispatch(
+        updateUser({ id: selectedManager._id, userData: managerData })
+      ).unwrap();
+      toast.success("Manager updated successfully");
 
       // Close modal and refresh users list
       setShowEditManagerModal(false);
       dispatch(getUsers());
-
     } catch (error) {
-      console.error('Failed to update manager:', error);
-      toast.error(error.message || 'Failed to update manager');
+      console.error("Failed to update manager:", error);
+      toast.error(error.message || "Failed to update manager");
     } finally {
       setIsUpdating(false);
     }
@@ -136,13 +157,13 @@ const ManagerManagement = () => {
 
     // Validation
     if (newManager.password !== newManager.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       setIsCreating(false);
       return;
     }
 
     if (newManager.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       setIsCreating(false);
       return;
     }
@@ -151,27 +172,26 @@ const ManagerManagement = () => {
       const managerData = {
         name: newManager.name,
         email: newManager.email,
-        password: newManager.password
+        password: newManager.password,
       };
 
       await dispatch(createManager(managerData)).unwrap();
-      toast.success('Manager created successfully');
+      toast.success("Manager created successfully");
 
       // Reset form and close modal
       setNewManager({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
       });
       setShowAddManagerModal(false);
-      
+
       // Refresh users list
       dispatch(getUsers());
-
     } catch (error) {
-      console.error('Failed to create manager:', error);
-      toast.error(error.message || 'Failed to create manager');
+      console.error("Failed to create manager:", error);
+      toast.error(error.message || "Failed to create manager");
     } finally {
       setIsCreating(false);
     }
@@ -179,17 +199,17 @@ const ManagerManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewManager(prev => ({
+    setNewManager((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    setEditManager(prev => ({
+    setEditManager((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -197,7 +217,9 @@ const ManagerManagement = () => {
     return (
       <div className="flex justify-center items-center min-h-96">
         <LoadingSpinner size="large" />
-        <span className="ml-2 text-gray-600 dark:text-gray-400">Loading managers...</span>
+        <span className="ml-2 text-gray-600 dark:text-gray-400">
+          Loading managers...
+        </span>
       </div>
     );
   }
@@ -215,7 +237,7 @@ const ManagerManagement = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button 
+          <Button
             onClick={() => setShowAddManagerModal(true)}
             className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
           >
@@ -269,11 +291,13 @@ const ManagerManagement = () => {
                 New This Month
               </p>
               <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">
-                {managers.filter(m => {
-                  const monthAgo = new Date();
-                  monthAgo.setMonth(monthAgo.getMonth() - 1);
-                  return new Date(m.createdAt) > monthAgo;
-                }).length}
+                {
+                  managers.filter((m) => {
+                    const monthAgo = new Date();
+                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                    return new Date(m.createdAt) > monthAgo;
+                  }).length
+                }
               </p>
             </div>
           </div>
@@ -318,7 +342,9 @@ const ManagerManagement = () => {
           </p>
           <div className="flex items-center space-x-2">
             <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Filters applied</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Filters applied
+            </span>
           </div>
         </div>
       </Card>
@@ -326,7 +352,10 @@ const ManagerManagement = () => {
       {/* Managers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedManagers.map((manager) => (
-          <Card key={manager._id} className="p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+          <Card
+            key={manager._id}
+            className="p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-medium text-lg">
@@ -336,7 +365,9 @@ const ManagerManagement = () => {
                   <h3 className="font-semibold text-gray-900 dark:text-white">
                     {manager.name}
                   </h3>
-                  <p className="text-sm text-blue-600 dark:text-blue-400">Manager</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">
+                    Manager
+                  </p>
                 </div>
               </div>
               <div className="flex space-x-1">
@@ -372,10 +403,12 @@ const ManagerManagement = () => {
                 <Mail className="w-4 h-4 mr-2" />
                 <span className="truncate">{manager.email}</span>
               </div>
-              
+
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                 <Calendar className="w-4 h-4 mr-2" />
-                <span>Joined {new Date(manager.createdAt).toLocaleDateString()}</span>
+                <span>
+                  Joined {new Date(manager.createdAt).toLocaleDateString()}
+                </span>
               </div>
             </div>
 
@@ -400,7 +433,9 @@ const ManagerManagement = () => {
             No Managers Found
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {searchTerm ? 'Try adjusting your search terms' : 'Get started by adding your first manager'}
+            {searchTerm
+              ? "Try adjusting your search terms"
+              : "Get started by adding your first manager"}
           </p>
           <Button onClick={() => setShowAddManagerModal(true)}>
             <UserPlus className="w-4 h-4 mr-2" />
@@ -412,7 +447,15 @@ const ManagerManagement = () => {
       {/* Add Manager Modal */}
       <Modal
         isOpen={showAddManagerModal}
-        onClose={() => setShowAddManagerModal(false)}
+        onClose={() => {
+          setShowAddManagerModal(false);
+          setNewManager({
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+          });
+        }}
         title="Add New Manager"
         size="lg"
       >
@@ -425,7 +468,7 @@ const ManagerManagement = () => {
               placeholder="Enter manager's full name"
               value={newManager.name}
               onChange={handleInputChange}
-              required
+              required={true}
             />
             <Input
               label="Email Address"
@@ -434,7 +477,7 @@ const ManagerManagement = () => {
               placeholder="Enter manager's email"
               value={newManager.email}
               onChange={handleInputChange}
-              required
+              required={true}
             />
           </div>
 
@@ -446,7 +489,7 @@ const ManagerManagement = () => {
               placeholder="Enter temporary password"
               value={newManager.password}
               onChange={handleInputChange}
-              required
+              required={true}
             />
             <Input
               label="Confirm Password"
@@ -455,7 +498,7 @@ const ManagerManagement = () => {
               placeholder="Confirm password"
               value={newManager.confirmPassword}
               onChange={handleInputChange}
-              required
+              required={true}
             />
           </div>
 
@@ -463,7 +506,8 @@ const ManagerManagement = () => {
             <div className="flex items-center">
               <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Managers can approve/reject bookings and view all bookings, but cannot manage other managers or users.
+                Managers can approve/reject bookings and view all bookings, but
+                cannot manage other managers or users.
               </p>
             </div>
           </div>
@@ -478,8 +522,9 @@ const ManagerManagement = () => {
             </Button>
             <Button
               type="submit"
-              disabled={isCreating}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              disabled={isCreateDisabled}
+              className={`bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
+    ${isCreateDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {isCreating ? (
                 <>
@@ -487,7 +532,7 @@ const ManagerManagement = () => {
                   <span className="ml-2">Creating Manager...</span>
                 </>
               ) : (
-                'Create Manager'
+                "Create Manager"
               )}
             </Button>
           </div>
@@ -510,7 +555,7 @@ const ManagerManagement = () => {
               placeholder="Enter manager's full name"
               value={editManager.name}
               onChange={handleEditInputChange}
-              required
+              required={true}
             />
             <Input
               label="Email Address"
@@ -519,7 +564,7 @@ const ManagerManagement = () => {
               placeholder="Enter manager's email"
               value={editManager.email}
               onChange={handleEditInputChange}
-              required
+              required={true}
             />
           </div>
           <div>
@@ -531,13 +576,14 @@ const ManagerManagement = () => {
               value={editManager.role}
               onChange={handleEditInputChange}
               className="input-field"
-              required
+              required={true}
             >
               <option value="user">User</option>
               <option value="manager">Manager</option>
             </select>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Select the role for this user. Managers can approve/reject bookings.
+              Select the role for this user. Managers can approve/reject
+              bookings.
             </p>
           </div>
 
@@ -560,8 +606,11 @@ const ManagerManagement = () => {
             </Button>
             <Button
               type="submit"
-              disabled={isUpdating}
-              variant='accent'
+              disabled={isUpdateDisabled}
+              variant="accent"
+              className={
+                isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+              }
             >
               {isUpdating ? (
                 <>
@@ -569,7 +618,7 @@ const ManagerManagement = () => {
                   <span className="ml-2">Updating Manager...</span>
                 </>
               ) : (
-                'Update Manager'
+                "Update Manager"
               )}
             </Button>
           </div>
@@ -599,17 +648,22 @@ const ManagerManagement = () => {
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="label">Email Address</label>
-                <p className="text-gray-900 dark:text-white">{selectedManager.email}</p>
+                <p className="text-gray-900 dark:text-white">
+                  {selectedManager.email}
+                </p>
               </div>
-              
+
               <div>
                 <label className="label">Manager Since</label>
                 <p className="text-gray-600 dark:text-gray-400">
-                  {new Date(selectedManager.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                  {new Date(selectedManager.createdAt).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }
+                  )}
                 </p>
               </div>
 
@@ -643,16 +697,18 @@ const ManagerManagement = () => {
               <div className="flex items-center">
                 <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  This action cannot be undone. The manager will be permanently removed.
+                  This action cannot be undone. The manager will be permanently
+                  removed.
                 </p>
               </div>
             </div>
 
             <p className="text-gray-600 dark:text-gray-400">
-              Are you sure you want to delete <strong>{selectedManager.name}</strong>? 
-              This manager will lose access to the system immediately.
+              Are you sure you want to delete{" "}
+              <strong>{selectedManager.name}</strong>? This manager will lose
+              access to the system immediately.
             </p>
-            
+
             <div className="flex space-x-3 justify-end">
               <Button
                 variant="outline"

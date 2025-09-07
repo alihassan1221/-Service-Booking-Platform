@@ -6,17 +6,10 @@ import {
   Home,
   Users,
   UserCircle,
-  ChevronLeft,
-  ChevronRight,
   LayoutDashboard,
 } from "lucide-react";
 
-const Sidebar = ({
-  isSidebarOpen,
-  toggleSidebar,
-  isSidebarCollapsed,
-  toggleSidebarCollapse,
-}) => {
+const Sidebar = ({ isSidebarOpen, toggleSidebar, isSidebarCollapsed }) => {
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
 
@@ -70,43 +63,7 @@ const Sidebar = ({
         lg:translate-x-0
       `}
     >
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black opacity-50 z-30 lg:hidden"
-          onClick={toggleSidebar}
-        ></div>
-      )}
-      <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
-        {!isSidebarCollapsed && (
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-            <LayoutDashboard className="w-5 h-5 mr-2 text-blue-500" />
-            {user.role === "admin"
-              ? "Admin"
-              : user.role === "manager"
-              ? "Manager"
-              : "User"}{" "}
-            Panel
-          </h2>
-        )}
-        <button
-          onClick={toggleSidebarCollapse}
-          className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 hidden lg:block"
-        >
-          {isSidebarCollapsed ? (
-            <ChevronRight className="w-5 h-5" />
-          ) : (
-            <ChevronLeft className="w-5 h-5" />
-          )}
-        </button>
-        <button
-          onClick={toggleSidebar}
-          className="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 lg:hidden"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-      </div>
-
-      <nav className="p-4">
+      <nav className="p-4 mt-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const IconComponent = item.icon;

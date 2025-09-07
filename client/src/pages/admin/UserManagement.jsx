@@ -1,29 +1,34 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { 
-  Search, 
-  Filter, 
-  Users, 
-  UserPlus, 
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Search,
+  Filter,
+  Users,
+  UserPlus,
   Eye,
   Edit,
-  Trash2
-} from 'lucide-react';
-import { getUsers, deleteUser, createManager, updateUser } from '../../store/slices/userSlice';
-import { register } from '../../store/slices/authSlice';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import Modal from '../../components/common/Modal';
-import Input from '../../components/common/Input';
-import { toast } from 'react-toastify';
+  Trash2,
+} from "lucide-react";
+import {
+  getUsers,
+  deleteUser,
+  createManager,
+  updateUser,
+} from "../../store/slices/userSlice";
+import { register } from "../../store/slices/authSlice";
+import Card from "../../components/common/Card";
+import Button from "../../components/common/Button";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import Modal from "../../components/common/Modal";
+import Input from "../../components/common/Input";
+import { toast } from "react-toastify";
 
 const UserManagement = () => {
   const dispatch = useDispatch();
   const { users, isLoading, message } = useSelector((state) => state.users);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
@@ -34,40 +39,55 @@ const UserManagement = () => {
 
   // Add user form state
   const [newUser, setNewUser] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'user'
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "user",
   });
 
   // Edit user form state
   const [editUser, setEditUser] = useState({
-    name: '',
-    email: '',
-    role: 'user'
+    name: "",
+    email: "",
+    role: "user",
   });
+
+  const isEditFormValid =
+    !editUser.name.trim() || 
+    !editUser.role.trim() || 
+    !editUser.email.trim() ||
+    isUpdating;
+
+  const isAddFormValid =
+    !newUser.name.trim() ||
+    !newUser.email.trim() ||
+    !newUser.password.trim() ||
+    !newUser.confirmPassword.trim() ||
+    !newUser.password === newUser.confirmPassword ||
+    isCreating;
 
   useEffect(() => {
     dispatch(getUsers());
   }, [dispatch]);
 
   // Filter and search users
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
   // Sort users
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     switch (sortBy) {
-      case 'newest':
+      case "newest":
         return new Date(b.createdAt) - new Date(a.createdAt);
-      case 'oldest':
+      case "oldest":
         return new Date(a.createdAt) - new Date(b.createdAt);
-      case 'name':
+      case "name":
         return a.name.localeCompare(b.name);
       default:
         return 0;
@@ -80,10 +100,10 @@ const UserManagement = () => {
         await dispatch(deleteUser(selectedUser._id)).unwrap();
         setShowDeleteModal(false);
         setSelectedUser(null);
-        toast.success('User deleted successfully');
+        toast.success("User deleted successfully");
       } catch (error) {
-        console.error('Failed to delete user:', error);
-        toast.error( message || error.message || 'Failed to delete user');
+        console.error("Failed to delete user:", error);
+        toast.error(message || error.message || "Failed to delete user");
       }
     }
   };
@@ -98,7 +118,7 @@ const UserManagement = () => {
     setEditUser({
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
     });
     setShowEditUserModal(true);
   };
@@ -111,19 +131,18 @@ const UserManagement = () => {
       const userData = {
         name: editUser.name,
         email: editUser.email,
-        role: editUser.role
+        role: editUser.role,
       };
 
       await dispatch(updateUser({ id: selectedUser._id, userData })).unwrap();
-      toast.success('User updated successfully');
+      toast.success("User updated successfully");
 
       // Close modal and refresh users list
       setShowEditUserModal(false);
       dispatch(getUsers());
-
     } catch (error) {
-      console.error('Failed to update user:', error);
-      toast.error(error.message || 'Failed to update user');
+      console.error("Failed to update user:", error);
+      toast.error(error.message || "Failed to update user");
     } finally {
       setIsUpdating(false);
     }
@@ -135,13 +154,13 @@ const UserManagement = () => {
 
     // Validation
     if (newUser.password !== newUser.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error("Passwords do not match");
       setIsCreating(false);
       return;
     }
 
     if (newUser.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error("Password must be at least 6 characters");
       setIsCreating(false);
       return;
     }
@@ -151,35 +170,34 @@ const UserManagement = () => {
         name: newUser.name,
         email: newUser.email,
         password: newUser.password,
-        role: newUser.role
+        role: newUser.role,
       };
 
-      if (newUser.role === 'manager') {
+      if (newUser.role === "manager") {
         // Use createManager for managers
         await dispatch(createManager(userData)).unwrap();
-        toast.success('Manager created successfully');
+        toast.success("Manager created successfully");
       } else {
         // Use register for regular users (admin can create users too)
         await dispatch(register(userData)).unwrap();
-        toast.success('User created successfully');
+        toast.success("User created successfully");
       }
 
       // Reset form and close modal
       setNewUser({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: 'user'
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        role: "user",
       });
       setShowAddUserModal(false);
-      
+
       // Refresh users list
       dispatch(getUsers());
-
     } catch (error) {
-      console.error('Failed to create user:', error);
-      toast.error(error.message || 'Failed to create user');
+      console.error("Failed to create user:", error);
+      toast.error(error.message || "Failed to create user");
     } finally {
       setIsCreating(false);
     }
@@ -187,17 +205,17 @@ const UserManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewUser(prev => ({
+    setNewUser((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleEditInputChange = (e) => {
     const { name, value } = e.target;
-    setEditUser(prev => ({
+    setEditUser((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -205,7 +223,9 @@ const UserManagement = () => {
     return (
       <div className="flex justify-center items-center min-h-96">
         <LoadingSpinner size="large" />
-        <span className="ml-2 text-gray-600 dark:text-gray-400">Loading users...</span>
+        <span className="ml-2 text-gray-600 dark:text-gray-400">
+          Loading users...
+        </span>
       </div>
     );
   }
@@ -223,7 +243,7 @@ const UserManagement = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button 
+          <Button
             onClick={() => setShowAddUserModal(true)}
             className="flex items-center"
           >
@@ -285,7 +305,9 @@ const UserManagement = () => {
           </p>
           <div className="flex items-center space-x-2">
             <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Filters applied</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Filters applied
+            </span>
           </div>
         </div>
       </Card>
@@ -315,7 +337,10 @@ const UserManagement = () => {
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {sortedUsers.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                <tr
+                  key={user._id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center text-white font-medium">
@@ -332,11 +357,15 @@ const UserManagement = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' :
-                      user.role === 'manager' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' :
-                      'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.role === "admin"
+                          ? "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400"
+                          : user.role === "manager"
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400"
+                      }`}
+                    >
                       {user.role?.toUpperCase()}
                     </span>
                   </td>
@@ -412,7 +441,7 @@ const UserManagement = () => {
                 placeholder="Enter user's full name"
                 value={newUser.name}
                 onChange={handleInputChange}
-                required
+                required={true}
               />
             </div>
             <div>
@@ -425,7 +454,7 @@ const UserManagement = () => {
                 placeholder="Enter user's email"
                 value={newUser.email}
                 onChange={handleInputChange}
-                required
+                required={true}
               />
             </div>
           </div>
@@ -441,7 +470,7 @@ const UserManagement = () => {
                 placeholder="Enter password"
                 value={newUser.password}
                 onChange={handleInputChange}
-                required
+                required={true}
               />
             </div>
             <div>
@@ -454,7 +483,7 @@ const UserManagement = () => {
                 placeholder="Confirm password"
                 value={newUser.confirmPassword}
                 onChange={handleInputChange}
-                required
+                required={true}
               />
             </div>
           </div>
@@ -468,13 +497,14 @@ const UserManagement = () => {
               value={newUser.role}
               onChange={handleInputChange}
               className="input-field"
-              required
+              required={true}
             >
               <option value="user">User</option>
               <option value="manager">Manager</option>
             </select>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Select the role for this user. Managers can approve/reject bookings.
+              Select the role for this user. Managers can approve/reject
+              bookings.
             </p>
           </div>
 
@@ -486,17 +516,14 @@ const UserManagement = () => {
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isCreating}
-            >
+            <Button type="submit" disabled={isCreating || !isAddFormValid} className={isAddFormValid ? "opacity-50 cursor-not-allowed" : ""}>
               {isCreating ? (
                 <>
                   <LoadingSpinner size="small" />
                   <span className="ml-2">Creating User...</span>
                 </>
               ) : (
-                'Create User'
+                "Create User"
               )}
             </Button>
           </div>
@@ -522,7 +549,7 @@ const UserManagement = () => {
                 placeholder="Enter user's full name"
                 value={editUser.name}
                 onChange={handleEditInputChange}
-                required
+                required={true}
               />
             </div>
             <div>
@@ -535,7 +562,7 @@ const UserManagement = () => {
                 placeholder="Enter user's email"
                 value={editUser.email}
                 onChange={handleEditInputChange}
-                required
+                required={true}
               />
             </div>
           </div>
@@ -549,13 +576,14 @@ const UserManagement = () => {
               value={editUser.role}
               onChange={handleEditInputChange}
               className="input-field"
-              required
+              required={true}
             >
               <option value="user">User</option>
               <option value="manager">Manager</option>
             </select>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Select the role for this user. Managers can approve/reject bookings.
+              Select the role for this user. Managers can approve/reject
+              bookings.
             </p>
           </div>
 
@@ -578,8 +606,9 @@ const UserManagement = () => {
             </Button>
             <Button
               type="submit"
-              variant='accent'
-              disabled={isUpdating}
+              variant="accent"
+              disabled={!isEditFormValid}
+              className={isEditFormValid ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isUpdating ? (
                 <>
@@ -587,7 +616,7 @@ const UserManagement = () => {
                   <span className="ml-2">Updating User...</span>
                 </>
               ) : (
-                'Update User'
+                "Update User"
               )}
             </Button>
           </div>
@@ -610,14 +639,18 @@ const UserManagement = () => {
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {selectedUser.name}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">{selectedUser.email}</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {selectedUser.email}
+                </p>
               </div>
             </div>
 
             <div className="grid gap-4">
               <div>
                 <label className="label">Role</label>
-                <p className="text-gray-900 dark:text-white capitalize">{selectedUser.role}</p>
+                <p className="text-gray-900 dark:text-white capitalize">
+                  {selectedUser.role}
+                </p>
               </div>
               <div>
                 <label className="label">Status</label>
@@ -654,12 +687,15 @@ const UserManagement = () => {
               <div className="flex items-center">
                 <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  This action cannot be undone. The {selectedUser.role} will be permanently removed.
+                  This action cannot be undone. The {selectedUser.role} will be
+                  permanently removed.
                 </p>
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400">
-              Are you sure you want to delete <strong>{selectedUser.name}</strong>? This action cannot be undone.
+              Are you sure you want to delete{" "}
+              <strong>{selectedUser.name}</strong>? This action cannot be
+              undone.
             </p>
             <div className="flex space-x-3 justify-end">
               <Button
@@ -668,10 +704,7 @@ const UserManagement = () => {
               >
                 Cancel
               </Button>
-              <Button
-                variant="danger"
-                onClick={handleDeleteUser}
-              >
+              <Button variant="danger" onClick={handleDeleteUser}>
                 Delete User
               </Button>
             </div>

@@ -1,11 +1,11 @@
-const User = require('../models/User');
+const userService = require('../services/userService');
 
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
 exports.getUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const users = await userService.getAllUsers();
 
     res.status(200).json({
       success: true,
@@ -25,7 +25,7 @@ exports.createManager = async (req, res, next) => {
     const { name, email, password } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await userService.checkEmailExists(email);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -33,7 +33,7 @@ exports.createManager = async (req, res, next) => {
       });
     }
 
-    const user = await User.create({
+    const user = await userService.createUser({
       name,
       email,
       password,
@@ -41,7 +41,7 @@ exports.createManager = async (req, res, next) => {
     });
 
     // Remove password from response
-    const userResponse = await User.findById(user._id).select('-password');
+    const userResponse = await userService.getUserById(user._id);
 
     res.status(201).json({
       success: true,
@@ -57,7 +57,7 @@ exports.createManager = async (req, res, next) => {
 // @access  Private/Admin
 exports.deleteUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await userService.getUserById(req.params.id);
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -68,7 +68,7 @@ exports.deleteUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Cannot delete admin users' });
     }
 
-    await User.findByIdAndDelete(req.params.id);
+    await userService.deleteUserById(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -88,14 +88,14 @@ exports.updateUser = async (req, res, next) => {
     const userId = req.params.id;
 
     // Check if user exists
-    const user = await User.findById(userId);
+    const user = await userService.getUserById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     // Check if email is already taken by another user
     if (email && email !== user.email) {
-      const existingUser = await User.findOne({ email });
+      const existingUser = await userService.checkEmailExists(email, userId);
       if (existingUser) {
         return res.status(400).json({
           success: false,
@@ -104,15 +104,15 @@ exports.updateUser = async (req, res, next) => {
       }
     }
 
-    // Update user fields
-    if (name) user.name = name;
-    if (email) user.email = email;
-    if (role) user.role = role;
-
-    const updatedUser = await user.save();
+    // Update user
+    const updatedUser = await userService.updateUserById(userId, {
+      name: name || user.name,
+      email: email || user.email,
+      role: role || user.role
+    });
 
     // Remove password from response
-    const userResponse = await User.findById(updatedUser._id).select('-password');
+    const userResponse = await userService.getUserById(updatedUser._id);
 
     res.status(200).json({
       success: true,
