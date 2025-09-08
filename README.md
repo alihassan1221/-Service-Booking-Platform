@@ -100,7 +100,7 @@ The project is divided into two main directories: `client` and `server`.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/alihassan1221/-Service-Booking-Platform.git
+    git clone https://github.com/alihassan1221/Service-Booking-Platform.git
     cd service-booking
     ```
 
