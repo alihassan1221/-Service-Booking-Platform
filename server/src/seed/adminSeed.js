@@ -3,12 +3,12 @@ const User = require('../models/User.js')
 
 const seedAdmin = async () => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
-    const adminPassword = process.env.ADMIN_PASSWORD || "Admin@123";
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@servicebooking.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || "aliHassan@1";
     const adminName = process.env.ADMIN_NAME || "Super Admin";
 
     // check if admin exists
-    const existing = await User.findOne({ email: adminEmail, role: "ADMIN" });
+    const existing = await User.findOne({ email: adminEmail, role: "admin" });
     if (existing) {
       console.log("✅ Admin already exists:", existing.email);
       return;

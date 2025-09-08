@@ -11,16 +11,15 @@ const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
 
 router.use(protect);
-router.use(authorize('admin'));
 
 router.route('/')
-  .get(getUsers);
+  .get(authorize('admin', 'manager'), getUsers);
 
 router.route('/managers')
-  .post(createManager);
+  .post(authorize('admin'), createManager);
 
 router.route('/:id')
-  .delete(deleteUser)
-  .put(updateUser)
+  .delete(authorize('admin'), deleteUser)
+  .put(authorize('admin', 'manager'), updateUser);
 
 module.exports = router;

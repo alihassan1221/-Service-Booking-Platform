@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { 
   Calendar, 
   Plus, 
@@ -14,13 +15,31 @@ import {
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { getUserBookings } from '../../store/slices/bookingSlice'; // Import the action
 
 const UserDashboard = () => {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
   const { bookings } = useSelector((state) => state.bookings);
 
   useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        await dispatch(getUserBookings()).unwrap();
+      } catch (error) {
+        console.error('Failed to fetch bookings:', error);
+      }
+    };
+
+    // Only fetch if we don't have bookings data
+    if (!bookings || bookings.length === 0) {
+      fetchBookings();
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Process stats when bookings data is available
     if (bookings) {
       const totalBookings = bookings.length;
       const pending = bookings.filter(b => b.status === 'pending').length;

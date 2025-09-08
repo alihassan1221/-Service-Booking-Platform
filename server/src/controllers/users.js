@@ -22,7 +22,7 @@ exports.getUsers = async (req, res, next) => {
 // @access  Private/Admin
 exports.createManager = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     // Check if user already exists
     const existingUser = await userService.checkEmailExists(email);
@@ -37,7 +37,7 @@ exports.createManager = async (req, res, next) => {
       name,
       email,
       password,
-      role: 'manager'
+      role: role || 'manager',
     });
 
     // Remove password from response

@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 const start = async () => {
   try {
     await connectDB();
-    await seedAdmin(); // ensures ADMIN seeded
+    await seedAdmin();
     app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
   } catch (err) {
     console.error('Failed to start', err);

@@ -15,8 +15,6 @@ import Button from '../../components/common/Button';
 const Profile = () => {
   const { user } = useSelector((state) => state.auth);
 
-  console.log('User Data is =>', user)
-
   const getRoleConfig = (role) => {
     switch (role) {
       case 'admin':

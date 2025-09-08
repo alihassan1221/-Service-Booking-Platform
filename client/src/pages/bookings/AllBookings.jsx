@@ -1,28 +1,6 @@
-/* eslint-disable no-unused-vars */
-import { useState } from 'react';
-import { 
-  Filter, 
-  Calendar, 
-  BarChart3,
-  Users,
-  CheckCircle,
-  XCircle,
-  Clock
-} from 'lucide-react';
 import BookingList from '../../components/bookings/BookingList';
-import Card from '../../components/common/Card';
 
 const AllBookings = () => {
-  const [activeTab, setActiveTab] = useState('all');
-
-  // Mock stats data - replace with real data from your API
-  const stats = {
-    total: 1247,
-    pending: 28,
-    approved: 984,
-    rejected: 35,
-    completed: 200
-  };
 
   return (
     <div className="space-y-6">

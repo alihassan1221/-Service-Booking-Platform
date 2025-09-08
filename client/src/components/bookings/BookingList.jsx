@@ -31,12 +31,10 @@ const BookingList = ({ isManagerView = false }) => {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    if (isManagerView && user?.role === 'manager') {
-      dispatch(getAllBookings());
-    } else {
+    if(!bookings || bookings.length === 0) {
       dispatch(getUserBookings());
     }
-  }, [dispatch, isManagerView, user?.role]);
+  }, [dispatch, bookings]);
 
   const handleCreateBooking = () => {
     navigate('/create-booking');

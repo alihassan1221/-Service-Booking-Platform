@@ -15,7 +15,6 @@ import {
   createManager,
   updateUser,
 } from "../../store/slices/userSlice";
-import { register } from "../../store/slices/authSlice";
 import Card from "../../components/common/Card";
 import Button from "../../components/common/Button";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
@@ -54,18 +53,18 @@ const UserManagement = () => {
   });
 
   const isEditFormValid =
-    !editUser.name.trim() || 
-    !editUser.role.trim() || 
-    !editUser.email.trim() ||
-    isUpdating;
+    editUser.name.trim() &&
+    editUser.role.trim() &&
+    editUser.email.trim() &&
+    !isUpdating;
 
   const isAddFormValid =
-    !newUser.name.trim() ||
-    !newUser.email.trim() ||
-    !newUser.password.trim() ||
-    !newUser.confirmPassword.trim() ||
-    !newUser.password === newUser.confirmPassword ||
-    isCreating;
+    newUser.name.trim() &&
+    newUser.email.trim() &&
+    newUser.password.trim() &&
+    newUser.confirmPassword.trim() &&
+    newUser.password === newUser.confirmPassword &&
+    !isCreating;
 
   useEffect(() => {
     dispatch(getUsers());
@@ -137,12 +136,11 @@ const UserManagement = () => {
       await dispatch(updateUser({ id: selectedUser._id, userData })).unwrap();
       toast.success("User updated successfully");
 
-      // Close modal and refresh users list
       setShowEditUserModal(false);
       dispatch(getUsers());
     } catch (error) {
       console.error("Failed to update user:", error);
-      toast.error(error.message || "Failed to update user");
+      toast.error(message || error.message || "Failed to update user");
     } finally {
       setIsUpdating(false);
     }
@@ -173,14 +171,9 @@ const UserManagement = () => {
         role: newUser.role,
       };
 
-      if (newUser.role === "manager") {
-        // Use createManager for managers
+      if (newUser.role === "manager" || newUser.role === 'user') {
         await dispatch(createManager(userData)).unwrap();
         toast.success("Manager created successfully");
-      } else {
-        // Use register for regular users (admin can create users too)
-        await dispatch(register(userData)).unwrap();
-        toast.success("User created successfully");
       }
 
       // Reset form and close modal
@@ -197,7 +190,7 @@ const UserManagement = () => {
       dispatch(getUsers());
     } catch (error) {
       console.error("Failed to create user:", error);
-      toast.error(error.message || "Failed to create user");
+      toast.error(message || error || error.message || "Failed to create user");
     } finally {
       setIsCreating(false);
     }
@@ -516,7 +509,11 @@ const UserManagement = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isCreating || !isAddFormValid} className={isAddFormValid ? "opacity-50 cursor-not-allowed" : ""}>
+            <Button
+              type="submit"
+              disabled={!isAddFormValid}
+              className={!isAddFormValid ? "opacity-50 cursor-not-allowed" : ""}
+            >
               {isCreating ? (
                 <>
                   <LoadingSpinner size="small" />
@@ -608,7 +605,7 @@ const UserManagement = () => {
               type="submit"
               variant="accent"
               disabled={!isEditFormValid}
-              className={isEditFormValid ? "opacity-50 cursor-not-allowed" : ""}
+              className={!isEditFormValid ? "opacity-50 cursor-not-allowed" : ""}
             >
               {isUpdating ? (
                 <>

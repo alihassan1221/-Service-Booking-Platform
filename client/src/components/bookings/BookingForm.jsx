@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // BookingForm.js
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { createBooking } from '../../store/slices/bookingSlice';
+import { createBooking, getUserBookings } from '../../store/slices/bookingSlice';
 import Input from '../common/Input';
 import Button from '../common/Button';
 import Card from '../common/Card';
@@ -25,8 +26,6 @@ const BookingForm = () => {
     { value: 'motorcycle', label: 'Motorcycle', icon: '🏍️' },
     { value: 'truck', label: 'Truck', icon: '🚚' },
     { value: 'suv', label: 'SUV', icon: '🚙' },
-    { value: 'van', label: 'Van', icon: '🚐' },
-    { value: 'bus', label: 'Bus', icon: '🚌' }
   ];
 
   // Validate form function
@@ -109,6 +108,7 @@ const BookingForm = () => {
 
     try {
       await dispatch(createBooking(formData)).unwrap();
+      await dispatch(getUserBookings()).unwrap();
       toast.success('Booking created successfully!');
 
       // Reset form
