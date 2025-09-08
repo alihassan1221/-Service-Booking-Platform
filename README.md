@@ -117,7 +117,7 @@ The project is divided into two main directories: `client` and `server`.
     JWT_SECRET=your_jwt_secret
     JWT_EXPIRE=7d
     ```
-    Replace `your_mongodb_connection_string`, `your_jwt_secret`, `admin@example.com`, and `adminpassword` with your actual values.
+    Replace `your_mongodb_connection_string`, `your_jwt_secret`, and `JWT_EXPIRE`.
 
 3.  **Frontend Setup:**
     ```bash
